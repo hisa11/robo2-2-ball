@@ -35,6 +35,23 @@ void canSend()
         float outputRight = pidControllerRight.calculate(targetSpeedRight, currentSpeed);
         float outputLeft = pidControllerLeft.calculate(targetSpeedLeft, currentSpeed1);
 
+        if (outputRight > 9990)
+        {
+            outputRight = 9990;
+        }
+        if (outputRight < -9990)
+        {
+            outputRight = -9990;
+        }
+        if (outputLeft > 9990)
+        {
+            outputLeft = 9990;
+        }
+        if (outputLeft < -9990)
+        {
+            outputLeft = -9990;
+        }
+
         int16_t outputRightInt16 = static_cast<int16_t>(outputRight);
         DATA[0] = outputRightInt16 >> 8;   // MSB
         DATA[1] = outputRightInt16 & 0xFF; // LSB

@@ -3,14 +3,15 @@
 #include "PID.hpp"
 #include "firstpenguin.hpp"
 #include "canSend.hpp"
+#include "controller.hpp"
 
 // firstpenguin_ID
 constexpr uint32_t penguinID = 35;
 
 // 変数宣言
-int leftJoystickX = 0;
-int leftJoystickY = 0;
-int rightJoystickX = 0;
+// int leftJoystickX = 0;
+// int leftJoystickY = 0;
+// int rightJoystickX = 0;
 int16_t currentSpeed = 0;
 int16_t currentSpeed1 = 0;
 int targetSpeedRight = 0;
@@ -36,7 +37,6 @@ const float sampleTime = 0.02; // 20ms sample time
 PID pidControllerRight(kp, ki, kd, sampleTime);
 PID pidControllerLeft(kp, ki, kd, sampleTime);
 
-// void processInput(char *output_buf){}; // processInput関数のプロトタイプを宣言
 
 // シリアル通信読み取りのプログラム
 void readUntilPipe(char *output_buf, int output_buf_size)
@@ -79,9 +79,10 @@ int main()
     while (1)
     {
         readUntilPipe(output_buf, sizeof(output_buf)); // '|'が受け取られるまでデータを読み込みます
-        // processInput(output_buf);
+        processInput(output_buf);
+        
 
-        targetSpeedLeft = leftJoystickY + rightJoystickX;
-        targetSpeedRight = -leftJoystickY + rightJoystickX;
+        targetSpeedLeft = (leftJoystickY - rightJoystickX) * 2 / 3;
+        targetSpeedRight = (-leftJoystickY - rightJoystickX) * 2 / 3;
     }
 }
