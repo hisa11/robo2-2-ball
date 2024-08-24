@@ -31,7 +31,7 @@ uint8_t DATA[8] = {};
 const float kp = 0.4;
 const float ki = 0.5;
 const float kd = 0.001;
-const float sampleTime = 0.02; // 20ms sample time
+const float sampleTime = 0.01; // 20ms sample time
 
 // PID制御器のインスタンスを作成
 PID pidControllerRight(kp, ki, kd, sampleTime);
