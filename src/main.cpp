@@ -24,7 +24,7 @@ Timer timer;
 // CAN通信
 CAN can1(PA_11, PA_12, (int)1e6);
 CAN can2(PB_12, PB_13, (int)1e6);
-FirstPenguin penguin{penguinID, can2};
+FirstPenguin penguin(penguinID, can2);
 uint8_t DATA[8] = {};
 
 // PID制御
@@ -78,31 +78,6 @@ int main()
     {
         readUntilPipe(output_buf, sizeof(output_buf)); // '|'が受け取られるまでデータを読み込みます
         processInput(output_buf);
-
-        if (strncmp(output_buf, "L1ON", 4) == 0) // "R3_x:"という文字列で始まるかどうかを確認します
-        {
-            penguin.pwm[0] = 10000;
-            penguin.pwm[1] = 10000;
-            penguin.pwm[2] = 10000;
-            penguin.pwm[3] = 10000;
-            // penguin.send();
-        }
-        else if (strncmp(output_buf, "L1OFF", 5) == 0 || strncmp(output_buf,"R1OFF",5)== 0 ) // "R3_x:"という文字列で始まるかどうかを確認します
-        {
-            penguin.pwm[0] = 0;
-            penguin.pwm[1] = 0;
-            penguin.pwm[2] = 0;
-            penguin.pwm[3] = 0;
-            // penguin.send();
-        }
-        else if (strncmp(output_buf, "R1ON", 4) == 0)
-        {
-            penguin.pwm[0] = -4000;
-            penguin.pwm[1] = -4000;
-            penguin.pwm[2] = -4000;
-            penguin.pwm[3] = -4000;
-        }
-        
 
         targetSpeedLeft = (leftJoystickY - rightJoystickX) * 7 / 12;
         targetSpeedRight = (-leftJoystickY - rightJoystickX) * 7 / 12;

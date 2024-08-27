@@ -52,6 +52,8 @@ void canSend()
             outputLeft = -9990;
         }
 
+        
+
         int16_t outputRightInt16 = static_cast<int16_t>(outputRight);
         DATA[0] = outputRightInt16 >> 8;   // MSB
         DATA[1] = outputRightInt16 & 0xFF; // LSB
