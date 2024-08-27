@@ -7,6 +7,7 @@
 
 // firstpenguin_ID
 constexpr uint32_t penguinID = 35;
+int8_t pic =1; 
 
 // 変数宣言
 // int leftJoystickX = 0;
@@ -14,8 +15,10 @@ constexpr uint32_t penguinID = 35;
 // int rightJoystickX = 0;
 int16_t currentSpeed = 0;
 int16_t currentSpeed1 = 0;
+int16_t picAngle = 0;
 int targetSpeedRight = 0;
 int targetSpeedLeft = 0;
+int targetpicSpeed = 0;
 
 // シリアル通信
 BufferedSerial pc(USBTX, USBRX, 250000);
@@ -36,6 +39,7 @@ const float sampleTime = 0.01; // 20ms sample time
 // PID制御器のインスタンスを作成
 PID pidControllerRight(kp, ki, kd, sampleTime);
 PID pidControllerLeft(kp, ki, kd, sampleTime);
+PID picSpeed(kp, ki, kd, sampleTime);
 
 // シリアル通信読み取りのプログラム
 void readUntilPipe(char *output_buf, int output_buf_size)
@@ -81,5 +85,24 @@ int main()
 
         targetSpeedLeft = (leftJoystickY - rightJoystickX) * 7 / 12;
         targetSpeedRight = (-leftJoystickY - rightJoystickX) * 7 / 12;
+
+        if (picAngle <= 0 || picAngle >= 8192)
+        {
+            pic = 1;
+        }
+        
+        if (pic == 1)
+        {
+            targetpicSpeed = 0;
+        }
+        else if (pic == 0)
+        {
+            targetpicSpeed = -2000;
+        }
+        else if(pic == 2)
+        {
+            targetpicSpeed = 2000;
+        }
+        
     }
 }

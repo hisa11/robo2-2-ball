@@ -4,6 +4,7 @@
 int leftJoystickX = 0;
 int leftJoystickY = 0;
 int rightJoystickX = 0;
+extern int8_t pic; 
 
 void processInput(char *output_buf)
 {
@@ -55,4 +56,13 @@ void processInput(char *output_buf)
         penguin.pwm[2] = 1500;
         penguin.pwm[3] = 1500;
     }
+    else if (strncmp(output_buf, "cross", 5) == 0)
+    {
+        pic = 0;
+    }
+    else if (strncmp(output_buf, "triangle", 5) == 0)
+    {
+        pic = 2;
+    }
+    
 }
