@@ -8,6 +8,9 @@
 // firstpenguin_ID
 constexpr uint32_t penguinID = 35;
 int8_t pic =1; 
+DigitalIn picbutton(D4);
+
+
 
 // 変数宣言
 // int leftJoystickX = 0;
@@ -75,6 +78,7 @@ void readUntilPipe(char *output_buf, int output_buf_size)
 
 int main()
 {
+    picbutton.mode(PullDown);
     char output_buf[20]; // 出力用のバッファを作成します
     Thread thread;
     thread.start(canSend); // canSendスレッドを開始
@@ -85,7 +89,10 @@ int main()
 
         targetSpeedLeft = (leftJoystickY - rightJoystickX) * 7 / 12;
         targetSpeedRight = (-leftJoystickY - rightJoystickX) * 7 / 12;
-
+        if(picbutton == 1)
+        {
+            picAngle = 0;
+        }
         if (picAngle <= 0 || picAngle >= 8192)
         {
             pic = 1;

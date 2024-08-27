@@ -18,9 +18,9 @@ extern uint8_t DATA[8];
 extern PID pidControllerRight;
 extern PID pidControllerLeft;
 
-int pic = 0;
-
 // extern int8_t pic;
+
+int16_t picAngle_d = 0;
 
 void canSend()
 {
@@ -38,23 +38,24 @@ void canSend()
         }
         if (can1.read(msg2) && msg2.id == 0x202)
         {
-            picAngle = (msg2.data[0] << 8) | msg2.data[1];
-            int diff = pic - previous_angle;
+            picAngle_d = (msg2.data[0] << 8) | msg2.data[1];
+            int diff = picAngle_d - previous_angle;
             if (diff > 4095) // ラップアラウンドの巻き戻し
             {
-                picAngle -= (8192 - pic);
+                picAngle -= (8192 - picAngle_d);
             }
             else if (diff < -4095) // ラップアラウンドの巻き進み
             {
-                picAngle += (8192 + pic);
+                picAngle += (8192 + picAngle_d);
             }
             else
             {
                 picAngle += diff;
             }
-            previous_angle = pic;
+            previous_angle = picAngle;
         }
-        printf("currentSpeed = %d , currentSpeed1 = %d\n", currentSpeed, currentSpeed1);
+        // printf("currentSpeed = %d , currentSpeed1 = %d\n", currentSpeed, currentSpeed1);
+        printf("picAngle = %d\n", picAngle);
 
         float outputRight = pidControllerRight.calculate(targetSpeedRight, currentSpeed);
         float outputLeft = pidControllerLeft.calculate(targetSpeedLeft, currentSpeed1);
