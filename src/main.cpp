@@ -8,9 +8,7 @@
 // firstpenguin_ID
 constexpr uint32_t penguinID = 35;
 int8_t pic =1; 
-DigitalIn picbutton(D4);
-
-
+DigitalIn picbutton(PC_1);
 
 // 変数宣言
 // int leftJoystickX = 0;
@@ -18,7 +16,7 @@ DigitalIn picbutton(D4);
 // int rightJoystickX = 0;
 int16_t currentSpeed = 0;
 int16_t currentSpeed1 = 0;
-int16_t picAngle = 0;
+int picAngle = 0;
 int targetSpeedRight = 0;
 int targetSpeedLeft = 0;
 int targetpicSpeed = 0;
@@ -75,23 +73,13 @@ void readUntilPipe(char *output_buf, int output_buf_size)
         }
     }
 }
-
-int main()
-{
-    picbutton.mode(PullDown);
-    char output_buf[20]; // 出力用のバッファを作成します
-    Thread thread;
-    thread.start(canSend); // canSendスレッドを開始
+void picthred(){
     while (1)
     {
-        readUntilPipe(output_buf, sizeof(output_buf)); // '|'が受け取られるまでデータを読み込みます
-        processInput(output_buf);
-
-        targetSpeedLeft = (leftJoystickY - rightJoystickX) * 7 / 12;
-        targetSpeedRight = (-leftJoystickY - rightJoystickX) * 7 / 12;
-        if(picbutton == 1)
+        if(picbutton == 0)
         {
             picAngle = 0;
+            printf("button is pressed\n");
         }
         if (picAngle <= 0 || picAngle >= 8192)
         {
@@ -110,6 +98,26 @@ int main()
         {
             targetpicSpeed = 2000;
         }
+    }
+    
+}
+
+int main()
+{
+    picbutton.mode(PullUp);
+    char output_buf[20]; // 出力用のバッファを作成します
+    Thread thread;
+    thread.start(canSend); // canSendスレッドを開始
+    Thread thread1;
+    thread1.start(picthred);
+    while (1)
+    {
+        readUntilPipe(output_buf, sizeof(output_buf)); // '|'が受け取られるまでデータを読み込みます
+        processInput(output_buf);
+
+        targetSpeedLeft = (leftJoystickY - rightJoystickX) * 7 / 12;
+        targetSpeedRight = (-leftJoystickY - rightJoystickX) * 7 / 12;
+        
         
     }
 }
