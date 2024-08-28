@@ -16,6 +16,8 @@ DigitalIn picbutton(PC_1);
 // int rightJoystickX = 0;
 int16_t currentSpeed = 0;
 int16_t currentSpeed1 = 0;
+int16_t currentAnpere = 0;
+int16_t currentAnpere1 = 0;
 int picAngle = 0;
 int targetSpeedRight = 0;
 int targetSpeedLeft = 0;
@@ -81,7 +83,7 @@ void picthred(){
             picAngle = 0;
             printf("button is pressed\n");
         }
-        if (picAngle <= 0 || picAngle >= 8192)
+        if (picAngle <= 0 || picAngle >= 15000)
         {
             pic = 1;
         }

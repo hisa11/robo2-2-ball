@@ -4,6 +4,8 @@
 int leftJoystickX = 0;
 int leftJoystickY = 0;
 int rightJoystickX = 0;
+extern int targetSpeedRight;
+extern int targetSpeedLeft;
 extern int8_t pic; 
 
 void processInput(char *output_buf)
@@ -63,6 +65,20 @@ void processInput(char *output_buf)
     else if (strncmp(output_buf, "triangle", 5) == 0)
     {
         pic = 2;
+    }
+    else if (strncmp(output_buf, "go", 2) == 0)
+    {
+        targetSpeedLeft = 3000;
+        targetSpeedRight = 3000;
+    }
+    else if (strncmp(output_buf, "back", 4) == 0){
+        targetSpeedLeft = -3000;
+        targetSpeedRight = -3000;
+    }
+    else if  (strncmp(output_buf, "stop", 4) == 0)
+    {
+        targetSpeedLeft = 0;
+        targetSpeedRight = 0;
     }
     
 }

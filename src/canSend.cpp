@@ -9,6 +9,8 @@ extern CAN can2;
 extern FirstPenguin penguin;
 extern int16_t currentSpeed;
 extern int16_t currentSpeed1;
+extern int16_t currentAnpere;
+extern int16_t currentAnpere1;
 extern int picAngle;
 extern int targetSpeedRight;
 extern int targetSpeedLeft;
@@ -38,6 +40,14 @@ void canSend()
         if (can1.read(msg2) && msg2.id == 0x202)
         {
             currentSpeed1 = (msg2.data[2] << 8) | msg2.data[3];
+        }
+        if (can1.read(msg1) && msg1.id == 0x201)
+        {
+            currentAnpere = (msg1.data[4] << 8) | msg1.data[5];
+        }
+        if (can1.read(msg2) && msg2.id == 0x202)
+        {
+            currentAnpere1 = (msg2.data[4] << 8) | msg2.data[5];
         }
         if (can1.read(msg2) && msg2.id == 0x203)
         {
