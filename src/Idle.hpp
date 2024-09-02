@@ -1,10 +1,10 @@
-// Idle.hpp
-#ifndef Idle_HPP
-#define Idle_HPP
+// // Idle.hpp
+// #ifndef Idle_HPP
+// #define Idle_HPP
 
-#include <mbed.h>
+// #include <mbed.h>
 
-void Idle(); // 関数のプロトタイプ宣言
+// void Idle(); // 関数のプロトタイプ宣言
 
 
-#endif // CANSEND_HPP
+// #endif // CANSEND_HPP
