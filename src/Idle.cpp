@@ -17,7 +17,7 @@ int currentAnpere_b = 0; // 前回のアンペア
 int currentAnpere1_b = 0;
 
 Timer idleTimer;
-int idleTimeThreshold = 2000; // 2秒間の空転で検知
+int idleTimeThreshold = 2; // 2秒間の空転で検知
 
 void Idle() {
     // タイマをリセット

@@ -8,6 +8,11 @@
 extern int leftJoystickX;
 extern int leftJoystickY;
 extern int rightJoystickX;
+extern int targetSpeedRight;
+extern int targetSpeedLeft;
+extern int8_t pic;
+extern int targetSpeedRight_M;
+extern int targetSpeedLeft_M;
 
 extern const uint32_t penguinID;
 

@@ -1,4 +1,3 @@
-// PID.hpp
 #ifndef PID_HPP
 #define PID_HPP
 
@@ -19,6 +18,8 @@ private:
     float _sample_time;
     float _last_input;
     float _integral;
+    float _last_output;  // 前回の出力を保持するための変数
+    float _last_error;   // 前回の誤差を保持するための変数
 };
 
 #endif // PID_HPP

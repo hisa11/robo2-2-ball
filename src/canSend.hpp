@@ -2,6 +2,7 @@
 #ifndef CANSEND_HPP
 #define CANSEND_HPP
 
-void canSend(); // 関数のプロトタイプ宣言
+void CANSend(); // 関数のプロトタイプ宣言
+void CANRead();
 
 #endif // CANSEND_HPP
