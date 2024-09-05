@@ -5,8 +5,6 @@ int leftJoystickX = 0;
 int leftJoystickY = 0;
 int rightJoystickX = 0;
 
- 
-
 void processInput(char *output_buf)
 {
     if (strncmp(output_buf, "L3_x:", 5) == 0) // "L3_x:"という文字列で始まるかどうかを確認します
@@ -52,10 +50,10 @@ void processInput(char *output_buf)
     }
     else if (strncmp(output_buf, "R1ON", 4) == 0) // "R1ON"という文字列で始まるかどうかを確認します
     {
-        penguin.pwm[0] = 1500;
-        penguin.pwm[1] = 1500;
-        penguin.pwm[2] = 1500;
-        penguin.pwm[3] = 1500;
+        penguin.pwm[0] = 2000;
+        penguin.pwm[1] = 2000;
+        penguin.pwm[2] = 2000;
+        penguin.pwm[3] = 2000;
     }
     else if (strncmp(output_buf, "cross", 5) == 0)
     {
@@ -67,8 +65,8 @@ void processInput(char *output_buf)
     }
     else if (strncmp(output_buf, "go", 2) == 0)
     {
-        targetSpeedLeft_M = 3000;
-        targetSpeedRight_M = -3000;
+        targetSpeedLeft_M = 10000;
+        targetSpeedRight_M = -10000;
         printf("go\n");
     }
     else if (strncmp(output_buf, "back", 4) == 0){

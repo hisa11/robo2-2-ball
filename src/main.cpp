@@ -7,7 +7,7 @@
 
 // firstpenguin_ID
 constexpr uint32_t penguinID = 35;
-int8_t pic = 2;
+int8_t pic = 0;
 DigitalIn picbutton(PC_1);
 
 // 変数宣言
@@ -21,6 +21,7 @@ int targetSpeedLeft = 0;
 int targetpicSpeed = 0;
 int targetSpeedRight_M = 0;
 int targetSpeedLeft_M = 0;
+int outputpic = 0;
 
 // シリアル通信
 BufferedSerial pc(USBTX, USBRX, 250000);
@@ -33,15 +34,15 @@ FirstPenguin penguin(penguinID, can2);
 uint8_t DATA[8] = {};
 
 // PID制御
-const float kp = 0.4;
-const float ki = 0.5;
-const float kd = 0.009;
+const float kp = 1.0;
+const float ki = 0;
+const float kd = 0;
 const float sampleTime = 0.01; // 20ms sample time
 
 // PID制御器のインスタンスを作成
-PID pidControllerRight(kp, ki, kd, sampleTime);
-PID pidControllerLeft(kp, ki, kd, sampleTime);
-PID picSpeed(0.2, 0.0, 0.00001, sampleTime);
+PID pidControllerRight(kp, ki, kd, 0.01, 1000, sampleTime,16000,500);//kp, ki, kd, rate_suppression_gain, sample_acceleration, sample_time
+PID pidControllerLeft(kp, ki, kd, 0.01, 1000, sampleTime,16000,500);
+PID picSpeed(0.0001, 0.0, 0., 0.01, 500, sampleTime,1000,100);
 
 // シリアル通信読み取りのプログラム
 void readUntilPipe(char *output_buf, int output_buf_size)
@@ -79,6 +80,9 @@ void picthred()
 {
     while (1)
     {
+        char output_buf[20];                           // 出力用のバッファを作成します
+        readUntilPipe(output_buf, sizeof(output_buf)); // '|'が受け取られるまでデータを読み込みます
+        processInput(output_buf);
         if (picbutton == 0)
         {
             picAngle = 0;
@@ -88,18 +92,18 @@ void picthred()
         {
             pic = 1;
         }
-        
+
         if (pic == 1)
         {
-            targetpicSpeed = 0;
+            outputpic = 0;
         }
         else if (pic == 0)
         {
-            targetpicSpeed = -2000;
+            outputpic = 500;
         }
-        else if(pic == 2)
+        else if (pic == 2)
         {
-            targetpicSpeed = 2000;
+            outputpic = -500;
             // printf("pic = 2\n");
         }
     }
@@ -108,7 +112,6 @@ void picthred()
 int main()
 {
     picbutton.mode(PullUp);
-    char output_buf[20]; // 出力用のバッファを作成します
     Thread thread2;
     thread2.start(CANRead); // CANReadスレッドを開始
     Thread thread;
@@ -117,10 +120,8 @@ int main()
     thread1.start(picthred);
     while (1)
     {
-        readUntilPipe(output_buf, sizeof(output_buf)); // '|'が受け取られるまでデータを読み込みます
-        processInput(output_buf);
-
         targetSpeedLeft = (leftJoystickY - rightJoystickX) * 7 / 12 + targetSpeedLeft_M;
         targetSpeedRight = (-leftJoystickY - rightJoystickX) * 7 / 12 + targetSpeedRight_M;
+        ThisThread::sleep_for(10ms);
     }
 }

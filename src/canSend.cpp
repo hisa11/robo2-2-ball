@@ -15,6 +15,7 @@ extern int picAngle;
 extern int targetSpeedRight;
 extern int targetSpeedLeft;
 extern int targetpicSpeed;
+extern int outputpic;
 extern uint8_t DATA[8];
 
 // PID制御器のインスタンスを参照
@@ -31,7 +32,7 @@ int16_t picSpeed_d = 0;
 void CANRead()
 {
     static int previous_angle = 0;
-    CANMessage msg1, msg2;
+    CANMessage msg1, msg2, msg3,msg4;
     while (1)
     {
         if (can1.read(msg1) && msg1.id == 0x201)
@@ -42,13 +43,14 @@ void CANRead()
         {
             currentSpeed1 = (msg2.data[2] << 8) | msg2.data[3];
         }
-        if (can1.read(msg1) && msg1.id == 0x203)
+        if (can1.read(msg3) && msg3.id == 0x203)
         {
-            picSpeed_d = (msg1.data[2] << 8) | msg1.data[3];
+            picSpeed_d = (msg3.data[2] << 8) | msg3.data[3];
         }
-        if (can1.read(msg2) && msg2.id == 0x203)
+        
+        if (can1.read(msg4) && msg4.id == 0x203)
         {
-            picAngle_d = (msg2.data[0] << 8) | msg2.data[1];
+            picAngle_d = (msg4.data[0] << 8) | msg4.data[1];
             int diff = picAngle_d - previous_angle;
 
             // 角度の範囲を正確に定義
@@ -69,7 +71,9 @@ void CANRead()
             }
             previous_angle = picAngle_d;
         }
+        ThisThread::sleep_for(10ms);
         // printf("picAngle = %d\n", picAngle);
+        printf("Right = %d, Left = %d, picSpeed = %d, picAngle = %d\n", currentSpeed, currentSpeed1, picSpeed_d, picAngle_d);
     }
 }
 
@@ -78,11 +82,12 @@ void CANSend()
     while (1)
     {
         float outputRight = pidControllerRight.calculate(targetSpeedRight, currentSpeed);
+        // printf("outputRight = %f\n", outputRight);
         float outputLeft = pidControllerLeft.calculate(targetSpeedLeft, currentSpeed1);
-        float outputpic = picSpeed.calculate(8000, picSpeed_d);
+        float outputpic = picSpeed.calculate(0, picSpeed_d);
+        // printf("outputpic = %f\n", outputpic);
         // printf("outputRight = %f, outputLeft = %f, outputpic = %f\n", outputRight, outputLeft, outputpic);
 
-        printf("picSpeed_d = %f, outputpic = %f\n", picSpeed_d, static_cast<double>(outputpic));
         if (outputRight > 11000)
         {
             outputRight = 11000;
@@ -99,10 +104,11 @@ void CANSend()
         {
             outputLeft = -11000;
         }
-        if(outputpic > 11000)
-        {
-            outputpic = 11000;
-        }
+        // if(outputpic > 11000)
+        // {
+        //     outputpic = 11000;
+        // }
+        // printf("picSpeed_d = %d, outputpic = %f\n", picSpeed_d, static_cast<double>(outputpic));
         if (abs(targetSpeedRight) == abs(targetSpeedLeft))
         {
             if (abs(currentSpeed) - abs(currentSpeed1) > 1)
@@ -140,11 +146,13 @@ void CANSend()
         DATA[3] = outputLeftInt16 & 0xFF; // LSB
 
         int16_t outputpicInt16 = static_cast<int16_t>(outputpic);
+        printf("outputpic = %d\n", outputpicInt16);
         DATA[3] = outputpicInt16 >> 8;   // MSB
         DATA[4] = outputpicInt16 & 0xFF; // LSB
 
         CANMessage msg0(0x200, DATA, 8);
         can1.write(msg0);
         penguin.send();
+        ThisThread::sleep_for(10ms);
     }
 }
