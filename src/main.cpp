@@ -37,11 +37,15 @@ uint8_t DATA[8] = {};
 const float kp = 1.0;
 const float ki = 0;
 const float kd = 0;
+const float rateSuppressionGain = 0.01;
+const float sampleacceleration = 500;
 const float sampleTime = 0.01; // 20ms sample time
+const float maximumClampChangeRate = 16000;
+const float maxChangeRate = 1000;
 
 // PID制御器のインスタンスを作成
-PID pidControllerRight(kp, ki, kd, 0.01, 1000, sampleTime,16000,500);//kp, ki, kd, rate_suppression_gain, sample_acceleration, sample_time
-PID pidControllerLeft(kp, ki, kd, 0.01, 1000, sampleTime,16000,500);
+PID pidControllerRight(kp, ki, kd, rateSuppressionGain, sampleacceleration, sampleTime,maximumClampChangeRate,maxChangeRate); //P, I, D, rate_suppression_gain, sample_acceleration, sample_time, maximum_clamp_change_rate, max_change_rate
+PID pidControllerLeft(kp, ki, kd, rateSuppressionGain, sampleacceleration, sampleTime,maximumClampChangeRate,maxChangeRate);
 PID picSpeed(0.0001, 0.0, 0., 0.01, 500, sampleTime,1000,100);
 
 // シリアル通信読み取りのプログラム
@@ -122,6 +126,6 @@ int main()
     {
         targetSpeedLeft = (leftJoystickY - rightJoystickX) * 7 / 12 + targetSpeedLeft_M;
         targetSpeedRight = (-leftJoystickY - rightJoystickX) * 7 / 12 + targetSpeedRight_M;
-        ThisThread::sleep_for(10ms);
+        // ThisThread::sleep_for(10ms);
     }
 }
