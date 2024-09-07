@@ -1,3 +1,4 @@
+//main.cpp
 // includeファイル
 #include "mbed.h"
 #include "PID.hpp"
@@ -34,14 +35,14 @@ FirstPenguin penguin(penguinID, can2);
 uint8_t DATA[8] = {};
 
 // PID制御
-const float kp = 1.0;
-const float ki = 0;
-const float kd = 0;
+const float kp = 0.0000000000001;
+const float ki = 0.5;
+const float kd = 10;
 const float rateSuppressionGain = 0.01;
 const float sampleacceleration = 500;
 const float sampleTime = 0.01; // 20ms sample time
-const float maximumClampChangeRate = 16000;
-const float maxChangeRate = 1000;
+const float maximumClampChangeRate = 8000.0;
+const float maxChangeRate = 40;
 
 // PID制御器のインスタンスを作成
 PID pidControllerRight(kp, ki, kd, rateSuppressionGain, sampleacceleration, sampleTime,maximumClampChangeRate,maxChangeRate); //P, I, D, rate_suppression_gain, sample_acceleration, sample_time, maximum_clamp_change_rate, max_change_rate
@@ -124,6 +125,9 @@ int main()
     thread1.start(picthred);
     while (1)
     {
+        char output_buf[20];                           // 出力用のバッファを作成します
+        readUntilPipe(output_buf, sizeof(output_buf)); // '|'が受け取られるまでデータを読み込みます
+        processInput(output_buf);
         targetSpeedLeft = (leftJoystickY - rightJoystickX) * 7 / 12 + targetSpeedLeft_M;
         targetSpeedRight = (-leftJoystickY - rightJoystickX) * 7 / 12 + targetSpeedRight_M;
         // ThisThread::sleep_for(10ms);

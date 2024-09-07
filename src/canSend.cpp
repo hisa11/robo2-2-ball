@@ -38,6 +38,7 @@ void CANRead()
         if (can1.read(msg1) && msg1.id == 0x201)
         {
             currentSpeed = (msg1.data[2] << 8) | msg1.data[3];
+            printf("currentSpeed = %d\n", currentSpeed);
         }
         if (can1.read(msg2) && msg2.id == 0x202)
         {
@@ -71,9 +72,8 @@ void CANRead()
             }
             previous_angle = picAngle_d;
         }
-        ThisThread::sleep_for(10ms);
         // printf("picAngle = %d\n", picAngle);
-        printf("Right = %d, Left = %d, picSpeed = %d, picAngle = %d\n", currentSpeed, currentSpeed1, picSpeed_d, picAngle_d);
+        // printf("Right = %d, Left = %d, picSpeed = %d, picAngle = %d\n", currentSpeed, currentSpeed1, picSpeed_d, picAngle_d);
     }
 }
 
@@ -82,7 +82,7 @@ void CANSend()
     while (1)
     {
         float outputRight = pidControllerRight.calculate(targetSpeedRight, currentSpeed);
-        // printf("outputRight = %f\n", outputRight);
+        // printf("outputRight = %f, nowSpeed = %f\n", outputRight, currentSpeed);
         float outputLeft = pidControllerLeft.calculate(targetSpeedLeft, currentSpeed1);
         float outputpic = picSpeed.calculate(0, picSpeed_d);
         // printf("outputpic = %f\n", outputpic);
@@ -146,13 +146,13 @@ void CANSend()
         DATA[3] = outputLeftInt16 & 0xFF; // LSB
 
         int16_t outputpicInt16 = static_cast<int16_t>(outputpic);
-        printf("outputpic = %d\n", outputpicInt16);
+        // printf("outputpic = %d\n", outputpicInt16);
         DATA[3] = outputpicInt16 >> 8;   // MSB
         DATA[4] = outputpicInt16 & 0xFF; // LSB
 
         CANMessage msg0(0x200, DATA, 8);
         can1.write(msg0);
         penguin.send();
-        ThisThread::sleep_for(10ms);
+        // ThisThread::sleep_for(10ms);
     }
 }
