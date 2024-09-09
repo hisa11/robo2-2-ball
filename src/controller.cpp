@@ -65,8 +65,8 @@ void processInput(char *output_buf)
     }
     else if (strncmp(output_buf, "go", 2) == 0)
     {
-        targetSpeedLeft_M = 10000;
-        targetSpeedRight_M = -10000;
+        targetSpeedLeft_M = 8000;
+        targetSpeedRight_M = -8000;
         printf("go\n");
     }
     else if (strncmp(output_buf, "back", 4) == 0){

@@ -31,18 +31,19 @@ Timer timer;
 // CAN通信
 CAN can1(PA_11, PA_12, (int)1e6);
 CAN can2(PB_12, PB_13, (int)1e6);
+// CAN can1(PA_11, PA_12, (int)1e6);
 FirstPenguin penguin(penguinID, can2);
 uint8_t DATA[8] = {};
 
 // PID制御
-const float kp = 0.0000000000001;
+const float kp = 0.003;
 const float ki = 0.5;
-const float kd = 10;
+const float kd = 100;
 const float rateSuppressionGain = 0.01;
 const float sampleacceleration = 500;
 const float sampleTime = 0.01; // 20ms sample time
 const float maximumClampChangeRate = 8000.0;
-const float maxChangeRate = 40;
+const float maxChangeRate = 50;
 
 // PID制御器のインスタンスを作成
 PID pidControllerRight(kp, ki, kd, rateSuppressionGain, sampleacceleration, sampleTime,maximumClampChangeRate,maxChangeRate); //P, I, D, rate_suppression_gain, sample_acceleration, sample_time, maximum_clamp_change_rate, max_change_rate
@@ -121,8 +122,8 @@ int main()
     thread2.start(CANRead); // CANReadスレッドを開始
     Thread thread;
     thread.start(CANSend); // CANSendスレッドを開始
-    Thread thread1;
-    thread1.start(picthred);
+    // Thread thread1;
+    // thread1.start(picthred);
     while (1)
     {
         char output_buf[20];                           // 出力用のバッファを作成します
