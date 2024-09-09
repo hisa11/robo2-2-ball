@@ -31,49 +31,46 @@ int16_t picSpeed_d = 0;
 
 void CANRead()
 {
-    static int previous_angle = 0;
-    CANMessage msg1, msg2, msg3,msg4;
+    CANMessage msg;
     while (1)
     {
-        if (can1.read(msg1) && msg1.id == 0x201)
+        if (can1.read(msg))
         {
-            currentSpeed = (msg1.data[2] << 8) | msg1.data[3];
-            printf("currentSpeed = %d\n", currentSpeed);
-        }
-        if (can1.read(msg2) && msg2.id == 0x202)
-        {
-            currentSpeed1 = (msg2.data[2] << 8) | msg2.data[3];
-        }
-        if (can1.read(msg3) && msg3.id == 0x203)
-        {
-            picSpeed_d = (msg3.data[2] << 8) | msg3.data[3];
-        }
-        
-        if (can1.read(msg4) && msg4.id == 0x203)
-        {
-            picAngle_d = (msg4.data[0] << 8) | msg4.data[1];
-            int diff = picAngle_d - previous_angle;
+            switch (msg.id)
+            {
+                case 0x201:
+                    currentSpeed = (msg.data[2] << 8) | msg.data[3];
+                    // printf("currentSpeed = %d\n", currentSpeed);
+                    break;
+                case 0x202:
+                    currentSpeed1 = (msg.data[2] << 8) | msg.data[3];
+                    break;
+                case 0x203:
+                    picSpeed_d = (msg.data[2] << 8) | msg.data[3];
+                    break;
+                // case 0x204:
+                //     picAngle_d = (msg.data[0] << 8) | msg.data[1];
+                //     int diff = picAngle_d - previous_angle;
 
-            // 角度の範囲を正確に定義
-            const int ANGLE_MAX = 8192;
-            const int HALF_ANGLE = ANGLE_MAX / 2;
+                //     // 角度の範囲を正確に定義
+                //     const int ANGLE_MAX = 8192;
+                //     const int HALF_ANGLE = ANGLE_MAX / 2;
 
-            if (diff > HALF_ANGLE) // ラップアラウンドの巻き戻し
-            {
-                picAngle -= (ANGLE_MAX - diff);
+                //     if (diff > HALF_ANGLE) // ラップアラウンドの巻き戻し
+                //     {
+                //         picAngle -= (ANGLE_MAX - diff);
+                //     }
+                //     else if (diff < -HALF_ANGLE) // ラップアラウンドの巻き進み
+                //     {
+                //         picAngle += (ANGLE_MAX + diff);
+                //     }
+                //     previous_angle = picAngle_d;
+                //     break;
+                default:
+                    break;
             }
-            else if (diff < -HALF_ANGLE) // ラップアラウンドの巻き進み
-            {
-                picAngle += (ANGLE_MAX + diff);
-            }
-            else
-            {
-                picAngle += diff;
-            }
-            previous_angle = picAngle_d;
         }
-        // printf("picAngle = %d\n", picAngle);
-        // printf("Right = %d, Left = %d, picSpeed = %d, picAngle = %d\n", currentSpeed, currentSpeed1, picSpeed_d, picAngle_d);
+        printf("currentSpeed = %d, currentSpeed1 = %d, picSpeed_d = %d\n", currentSpeed, currentSpeed1, picSpeed_d);
     }
 }
 
