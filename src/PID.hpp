@@ -25,6 +25,7 @@ private:
     float _last_error;
     float _last_rate;
     float _acceleration;
+    int _syosoku;
     Timer _timer;
 };
 

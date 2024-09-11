@@ -1,9 +1,6 @@
 #include "controller.hpp"
 
-// グローバル変数の定義
-int leftJoystickX = 0;
-int leftJoystickY = 0;
-int rightJoystickX = 0;
+
 
 void processInput(char *output_buf)
 {

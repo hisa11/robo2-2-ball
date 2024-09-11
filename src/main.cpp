@@ -1,10 +1,11 @@
-//main.cpp
-// includeファイル
+// main.cpp
+//  includeファイル
 #include "mbed.h"
 #include "PID.hpp"
 #include "firstpenguin.hpp"
 #include "canSend.hpp"
 #include "controller.hpp"
+#include <cmath>
 
 // firstpenguin_ID
 constexpr uint32_t penguinID = 35;
@@ -22,7 +23,11 @@ int targetSpeedLeft = 0;
 int targetpicSpeed = 0;
 int targetSpeedRight_M = 0;
 int targetSpeedLeft_M = 0;
-int outputpic = 0;
+int outputpic = 0; // グローバル変数の定義
+int leftJoystickX = 0;
+int leftJoystickY = 0;
+int rightJoystickX = 0;
+int joystickAngle = 0;
 
 // シリアル通信
 BufferedSerial pc(USBTX, USBRX, 250000);
@@ -46,9 +51,9 @@ const float maximumClampChangeRate = 8000.0;
 const float maxChangeRate = 50;
 
 // PID制御器のインスタンスを作成
-PID pidControllerRight(kp, ki, kd, rateSuppressionGain, sampleacceleration, sampleTime,maximumClampChangeRate,maxChangeRate); //P, I, D, rate_suppression_gain, sample_acceleration, sample_time, maximum_clamp_change_rate, max_change_rate
-PID pidControllerLeft(kp, ki, kd, rateSuppressionGain, sampleacceleration, sampleTime,maximumClampChangeRate,maxChangeRate);
-PID picSpeed(0.0001, 0.0, 0., 0.01, 500, sampleTime,1000,100);
+PID pidControllerRight(kp, ki, kd, rateSuppressionGain, sampleacceleration, sampleTime, maximumClampChangeRate, maxChangeRate); // P, I, D, rate_suppression_gain, sample_acceleration, sample_time, maximum_clamp_change_rate, max_change_rate
+PID pidControllerLeft(kp, ki, kd, rateSuppressionGain, sampleacceleration, sampleTime, maximumClampChangeRate, maxChangeRate);
+PID picSpeed(0.0001, 0.0, 0., 0.01, 500, sampleTime, 1000, 100);
 
 // シリアル通信読み取りのプログラム
 void readUntilPipe(char *output_buf, int output_buf_size)
@@ -122,13 +127,31 @@ int main()
     thread2.start(CANRead); // CANReadスレッドを開始
     Thread thread;
     thread.start(CANSend); // CANSendスレッドを開始
-    // Thread thread1;
-    // thread1.start(picthred);
     while (1)
     {
         char output_buf[20];                           // 出力用のバッファを作成します
         readUntilPipe(output_buf, sizeof(output_buf)); // '|'が受け取られるまでデータを読み込みます
         processInput(output_buf);
+
+        // Calculate the angle of the joystick
+        // ジョイスティックの角度を計算
+        if (leftJoystickX == 0 && leftJoystickY == 0)
+        {
+            joystickAngle = 0;
+        }
+        else
+        {
+            joystickAngle = atan2(leftJoystickY, leftJoystickX) * 180.0f / M_PI - 90;
+        }
+        if(joystickAngle > 90){
+            joystickAngle -= 180;
+        }else if(joystickAngle < -90){
+            joystickAngle += 180;
+        }
+
+        // 結果を出力
+        printf("x = %d, y = %d, joystickAngle = %d\n", leftJoystickX, leftJoystickY, joystickAngle);
+
         targetSpeedLeft = (leftJoystickY - rightJoystickX) * 7 / 12 + targetSpeedLeft_M;
         targetSpeedRight = (-leftJoystickY - rightJoystickX) * 7 / 12 + targetSpeedRight_M;
         // ThisThread::sleep_for(10ms);

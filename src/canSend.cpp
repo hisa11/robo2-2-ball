@@ -70,7 +70,7 @@ void CANRead()
                     break;
             }
         }
-        printf("currentSpeed = %d, currentSpeed1 = %d, picSpeed_d = %d\n", currentSpeed, currentSpeed1, picSpeed_d);
+        // printf("currentSpeed = %d, currentSpeed1 = %d, picSpeed_d = %d\n", currentSpeed, currentSpeed1, picSpeed_d);
     }
 }
 
@@ -142,10 +142,10 @@ void CANSend()
         DATA[2] = outputLeftInt16 >> 8;   // MSB
         DATA[3] = outputLeftInt16 & 0xFF; // LSB
 
-        int16_t outputpicInt16 = static_cast<int16_t>(outputpic);
-        // printf("outputpic = %d\n", outputpicInt16);
-        DATA[3] = outputpicInt16 >> 8;   // MSB
-        DATA[4] = outputpicInt16 & 0xFF; // LSB
+        // int16_t outputpicInt16 = static_cast<int16_t>(outputpic);
+        // // printf("outputpic = %d\n", outputpicInt16);
+        // DATA[3] = outputpicInt16 >> 8;   // MSB
+        // DATA[4] = outputpicInt16 & 0xFF; // LSB
 
         CANMessage msg0(0x200, DATA, 8);
         can1.write(msg0);
