@@ -2,7 +2,7 @@
 #include "mbed.h"
 
 // PIDクラスのコンストラクタ
-PID::PID(float kp, float ki, float kd, float rate_suppression_gain, float sample_acceleration, float sample_time, int maximum_clamp_change_rate, int max_change_rate)
+PID::PID(float kp, float ki, float kd, float rate_suppression_gain, float sample_acceleration, float sample_time, int maximum_clamp_change_rate, int max_change_rate,int syosoku,bool PID_Mode)
     : _kp(kp), // 比例ゲイン
       _ki(ki), // 積分ゲイン
       _kd(kd), // 微分ゲイン
@@ -17,7 +17,8 @@ PID::PID(float kp, float ki, float kd, float rate_suppression_gain, float sample
       _last_error(0), // 前回の誤差
       _last_rate(0),  // 前回の変化率
       _acceleration(0), // 加速度の初期化
-      _syosoku(0)
+      _syosoku_a(syosoku), // 加速度の初期化
+      _PID_Mode(PID_Mode) // PIDモードの初期化
 {
     // タイマーの開始
     _timer.start();
@@ -29,10 +30,12 @@ float PID::calculate(int set_speed, int now_speed)
     // 現在の速度と目標速度の誤差を計算
     int error = set_speed - now_speed;
     if(set_speed < 0){
-        _syosoku = -10;
+        _syosoku = -_syosoku_a;
     }
     else if(set_speed > 0){
-        _syosoku = 10;
+        _syosoku = _syosoku_a;
+    }else{
+        _syosoku = 0;
     }
 
     // 比例項の計算
@@ -68,7 +71,7 @@ float PID::calculate(int set_speed, int now_speed)
     }
 
     // 目標出力の計算
-    int desired_output = _last_output + rate - rate_suppression+ _syosoku;
+    int desired_output = _PID_Mode*_last_output + rate - rate_suppression+ _syosoku;
 
     // 出力のクランプ（最大値・最小値の制限）
     const float output_max = _maximum_clamp_change_rate; // 出力の最大値

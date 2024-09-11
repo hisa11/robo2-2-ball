@@ -8,7 +8,7 @@
 #include <cmath>
 
 // firstpenguin_ID
-constexpr uint32_t penguinID = 35;
+constexpr uint32_t penguinID = 40;
 int8_t pic = 0;
 DigitalIn picbutton(PC_1);
 
@@ -51,9 +51,10 @@ const float maximumClampChangeRate = 8000.0;
 const float maxChangeRate = 50;
 
 // PID制御器のインスタンスを作成
-PID pidControllerRight(kp, ki, kd, rateSuppressionGain, sampleacceleration, sampleTime, maximumClampChangeRate, maxChangeRate); // P, I, D, rate_suppression_gain, sample_acceleration, sample_time, maximum_clamp_change_rate, max_change_rate
-PID pidControllerLeft(kp, ki, kd, rateSuppressionGain, sampleacceleration, sampleTime, maximumClampChangeRate, maxChangeRate);
-PID picSpeed(0.0001, 0.0, 0., 0.01, 500, sampleTime, 1000, 100);
+PID pidControllerRight(kp, ki, kd, rateSuppressionGain, sampleacceleration, sampleTime, maximumClampChangeRate, maxChangeRate,10,1); // P, I, D, rate_suppression_gain, sample_acceleration, sample_time, maximum_clamp_change_rate, max_change_rate
+PID pidControllerLeft(kp, ki, kd, rateSuppressionGain, sampleacceleration, sampleTime, maximumClampChangeRate, maxChangeRate,10,1); // P, I, D, rate_suppression_gain, sample_acceleration, sample_time, maximum_clamp_change_rate, max_change_rate
+PID picSpeed(0.0001, 0.0, 0., 0.01, 500, sampleTime, 1000, 100,10,1);
+PID rotation(0,0,0,0,0,sampleTime,500,100,10,0);
 
 // シリアル通信読み取りのプログラム
 void readUntilPipe(char *output_buf, int output_buf_size)
@@ -135,6 +136,7 @@ int main()
 
         // Calculate the angle of the joystick
         // ジョイスティックの角度を計算
+
         if (leftJoystickX == 0 && leftJoystickY == 0)
         {
             joystickAngle = 0;
@@ -150,10 +152,12 @@ int main()
         }
 
         // 結果を出力
-        printf("x = %d, y = %d, joystickAngle = %d\n", leftJoystickX, leftJoystickY, joystickAngle);
-
-        targetSpeedLeft = (leftJoystickY - rightJoystickX) * 7 / 12 + targetSpeedLeft_M;
-        targetSpeedRight = (-leftJoystickY - rightJoystickX) * 7 / 12 + targetSpeedRight_M;
+        
+        targetSpeedRight = (sqrt(pow(leftJoystickX, 2) + pow(leftJoystickY, 2)) + rightJoystickX)*7/12 + targetSpeedRight_M;
+        targetSpeedLeft = (sqrt(pow(leftJoystickX, 2) + pow(leftJoystickY, 2)) - rightJoystickX)*7/12 + targetSpeedLeft_M;
+        printf("x = %d, y = %d, joystickAngle = %d,targetSpeed = %d\n", leftJoystickX, leftJoystickY, joystickAngle, targetSpeedRight);
+        // targetSpeedLeft = (leftJoystickY - rightJoystickX) * 7 / 12 + targetSpeedLeft_M;
+        // targetSpeedRight = (-leftJoystickY - rightJoystickX) * 7 / 12 + targetSpeedRight_M;
         // ThisThread::sleep_for(10ms);
     }
 }
