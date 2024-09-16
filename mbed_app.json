@@ -1,11 +1,14 @@
 {
-    "target_overrides": {
+  "target_overrides": {
       "*": {
-        "target.c_lib": "std",
-        "platform.minimal-printf-enable-64-bit": true,
-        "platform.minimal-printf-enable-floating-point": true,
-        "platform.minimal-printf-set-floating-point-max-decimals": 6,
-        "platform.stdio-baud-rate": 2500000
+          "target.c_lib": "std",
+          "platform.minimal-printf-enable-64-bit": true,
+          "platform.minimal-printf-enable-floating-point": true,
+          "platform.minimal-printf-set-floating-point-max-decimals": 6,
+          "platform.stdio-baud-rate": 2500000,
+          "platform.stdio-buffered-serial": true,
+          "platform.stdio-convert-newlines": true,
+          "rtos.main-thread-stack-size": 8192
       }
-    }
   }
+}

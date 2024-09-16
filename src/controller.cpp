@@ -1,7 +1,5 @@
 #include "controller.hpp"
 
-
-
 void processInput(char *output_buf)
 {
     if (strncmp(output_buf, "L3_x:", 5) == 0) // "L3_x:"という文字列で始まるかどうかを確認します
@@ -31,10 +29,10 @@ void processInput(char *output_buf)
     }
     else if (strncmp(output_buf, "L1ON", 4) == 0) // "L1ON"という文字列で始まるかどうかを確認します
     {
-        penguin.pwm[0] = -10000;
-        penguin.pwm[1] = -10000;
-        penguin.pwm[2] = -10000;
-        penguin.pwm[3] = -10000;
+        penguin.pwm[0] = -20000;
+        penguin.pwm[1] = -20000;
+        penguin.pwm[2] = -20000;
+        penguin.pwm[3] = -20000;
         // penguin.send();
     }
     else if (strncmp(output_buf, "L1OFF", 5) == 0 || strncmp(output_buf, "R1OFF", 5) == 0) // "L1OFF"または"R1OFF"という文字列で始まるかどうかを確認します
@@ -47,10 +45,10 @@ void processInput(char *output_buf)
     }
     else if (strncmp(output_buf, "R1ON", 4) == 0) // "R1ON"という文字列で始まるかどうかを確認します
     {
-        penguin.pwm[0] = 2000;
-        penguin.pwm[1] = 2000;
-        penguin.pwm[2] = 2000;
-        penguin.pwm[3] = 2000;
+        penguin.pwm[0] = 3800;
+        penguin.pwm[1] = 3800;
+        penguin.pwm[2] = 3800;
+        penguin.pwm[3] = 3800;
     }
     else if (strncmp(output_buf, "cross", 5) == 0)
     {
@@ -62,8 +60,8 @@ void processInput(char *output_buf)
     }
     else if (strncmp(output_buf, "go", 2) == 0)
     {
-        targetSpeedLeft_M = 8000;
-        targetSpeedRight_M = -8000;
+        targetSpeedLeft_M = 3000;
+        targetSpeedRight_M = -3000;
         printf("go\n");
     }
     else if (strncmp(output_buf, "back", 4) == 0){
