@@ -4,6 +4,7 @@
 
 void CANSend(); // 関数のプロトタイプ宣言
 void CANRead();
+void PIDcalculation();
 
 extern Timer timer;
 

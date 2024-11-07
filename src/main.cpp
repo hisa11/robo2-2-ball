@@ -11,6 +11,7 @@
 constexpr uint32_t penguinID = 40;
 int8_t pic = 1;
 DigitalIn picbutton(PC_1);
+DigitalIn kickswich(PC_2);
 
 // 変数宣言
 int16_t currentSpeed = 0;
@@ -30,6 +31,9 @@ int rightJoystickX = 0;
 int joystickAngle = 0;
 int targetSpeed = 0;
 bool pic_flag = 1;
+int kick = 1;
+bool kick_flag = 0;
+bool kick_flug_zyunbi = 0;
 
 // シリアル通信
 BufferedSerial pc(USBTX, USBRX, 250000);
@@ -43,9 +47,9 @@ FirstPenguin penguin(penguinID, can2);
 uint8_t DATA[8] = {};
 
 // PID制御
-const float kp = 0.004;
-const float ki = 0;
-const float kd = 0.01;
+const float kp = 0.008;
+const float ki = 0.011;
+const float kd = 0.006;
 const float rateSuppressionGain = 0.01;
 const float sampleacceleration = 500;
 const float sampleTime = 0.01; // 20ms sample time
@@ -53,10 +57,10 @@ const float maximumClampChangeRate = 12000.0;
 const float maxChangeRate = 800;
 
 // PID制御器のインスタンスを作成
-PID pidControllerRight(kp + 0.005, ki, kd, rateSuppressionGain, sampleacceleration, sampleTime, maximumClampChangeRate, maxChangeRate, 10, 1); // P, I, D, rate_suppression_gain, sample_acceleration, sample_time, maximum_clamp_change_rate, max_change_rate
-PID pidControllerLeft(kp, ki, kd, rateSuppressionGain, sampleacceleration, sampleTime, maximumClampChangeRate, maxChangeRate, 10, 1);          // P, I, D, rate_suppression_gain, sample_acceleration, sample_time, maximum_clamp_change_rate, max_change_rate
-PID picSpeed(0.8903, 0.22, 21, 0.01, 500, sampleTime, 8000, 250, 10, 1);
-PID rotation(30.0, 20.81, 2.5, 0, 0, sampleTime, 8000, 3000, 500, 0);
+PID pidControllerRight(kp, ki, kd, rateSuppressionGain, sampleacceleration, sampleTime, maximumClampChangeRate, maxChangeRate, 10, 1); // P, I, D, rate_suppression_gain, sample_acceleration, sample_time, maximum_clamp_change_rate, max_change_rate
+PID pidControllerLeft(kp, ki, kd, rateSuppressionGain, sampleacceleration, sampleTime, maximumClampChangeRate, maxChangeRate, 10, 1);  // P, I, D, rate_suppression_gain, sample_acceleration, sample_time, maximum_clamp_change_rate, max_change_rate
+PID picSpeed(0.03, 1.04, 28, 0.01, 500, sampleTime, 8000, 600, 10, 1);
+PID rotation(2.0, 11.81, 0, 0, 0, sampleTime, 8000, 2500, 1500, 0);
 
 // シリアル通信読み取りのプログラム
 void readUntilPipe(char *output_buf, int output_buf_size)
@@ -106,26 +110,88 @@ void picthred()
                 pic_flag = 0;
             }
         }
-        else{
-            if(picbutton == 1){
+        else
+        {
+            if (picbutton == 1)
+            {
                 pic_flag = 1;
             }
         }
+        if (pic == 1)
+        {
+            targetpicSpeed = 0;
+        }
+        else if (pic == 2)
+        {
+            targetpicSpeed = 800;
+        }
+        else if (pic == 0)
+        {
+            targetpicSpeed = -1300;
+        }
+        // printf("pic=%d\n",pic);
+        if (kickswich == 0)
+        {
+            if (kick_flug_zyunbi == 0)
+            {
+                kick = 1;
+            }
+            kick_flug_zyunbi = 1;
+        }else{
+            kick_flug_zyunbi = 0;
+        }
+        if (kick == 0)
+        {
+            penguin.pwm[0] = -2500;
+        }
+        else if (kick == 2)
+        {
+            penguin.pwm[0] = 2500;
+        }
+        else if (kick == 1)
+        {
+            penguin.pwm[0] = 0;
+        }
+        else if (kick == 3)
+        {
+            penguin.pwm[0] = -23000;
+            if (kickswich == 0)
+            {
+                if (kick_flag == 0)
+                {
+                    kick_flag = 1;
+                    ThisThread::sleep_for(100ms);
+                    printf("kickflugpass\n");
+                }
+                else
+                {
+                    kick = 1;
+                    kick_flag = 0;
+                    printf("kickflugstop\n");
+                }
+            }
+        }
+        // printf("kick=%d\n", kick);
+        // printf("pic = %d\n",pic);
     }
 }
 
 int main()
 {
-
     picbutton.mode(PullUp);
+    kickswich.mode(PullUp);
     Thread thread2;
     thread2.start(CANRead); // CANReadスレッドを開始
     Thread thread;
     thread.start(CANSend); // CANSendスレッドを開始
     Thread thread3;
     thread3.start(picthred);
+    Thread thread4;
+    thread4.start(PIDcalculation);
+
     while (1)
     {
+        // printf("aaa\n");
         char output_buf[20];                           // 出力用のバッファを作成します
         readUntilPipe(output_buf, sizeof(output_buf)); // '|'が受け取られるまでデータを読み込みます
         processInput(output_buf);
@@ -160,20 +226,9 @@ int main()
         {
             targetSpeed = (sqrt(pow(leftJoystickX, 2) + pow(-leftJoystickY, 2)));
         }
-        if (pic == 1)
-        {
-            targetpicSpeed = 0;
-        }
-        else if (pic == 2)
-        {
-            targetpicSpeed = 1500;
-        }
-        else if (pic == 0)
-        {
-            targetpicSpeed = -2500;
-        }
+
         // printf("targetSpeed = %d\n", targetpicSpeed);
-        printf("pic = %d\n", pic);
+        // printf("pic = %d\n", pic);
 
         targetSpeedRight = (targetSpeed - rightJoystickX) / 2 + targetSpeedRight_M;
         targetSpeedLeft = (targetSpeed + rightJoystickX) / 2 + targetSpeedLeft_M;

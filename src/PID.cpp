@@ -106,6 +106,10 @@ float PID::calculate(int set_speed, int now_speed)
         output = desired_output;
     }
 
+    if(_PID_Mode == 1 && set_speed == 0) {
+        output = 0;
+    }
+
     // 最終デバッグ用出力
     // printf("output = %d, desired_output = %d\n", output, desired_output);
     // printf("\n");
